@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Supported operations: addition (+), subtraction (-), multiplication (*), and division (/).
+// Supported operations: addition (+), subtraction (-), multiplication (*), division (/), modulo (%), exponentiation (**), and square root (sqrt).
 function add(leftOperand, rightOperand) {
   return leftOperand + rightOperand;
 }
@@ -21,6 +21,26 @@ function divide(leftOperand, rightOperand) {
   return leftOperand / rightOperand;
 }
 
+function modulo(leftOperand, rightOperand) {
+  if (rightOperand === 0) {
+    throw new RangeError("Modulo by zero is not allowed.");
+  }
+
+  return leftOperand % rightOperand;
+}
+
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+function squareRoot(number) {
+  if (number < 0) {
+    throw new RangeError("Square root of a negative number is not allowed.");
+  }
+
+  return Math.sqrt(number);
+}
+
 function calculate(leftOperand, operator, rightOperand) {
   switch (operator) {
     case "+":
@@ -31,13 +51,20 @@ function calculate(leftOperand, operator, rightOperand) {
       return multiply(leftOperand, rightOperand);
     case "/":
       return divide(leftOperand, rightOperand);
+    case "%":
+      return modulo(leftOperand, rightOperand);
+    case "**":
+      return power(leftOperand, rightOperand);
+    case "sqrt":
+      return squareRoot(leftOperand);
     default:
       throw new Error(`Unsupported operation "${operator}".`);
   }
 }
 
 function printUsage() {
-  console.error("Usage: node src/calculator.js <number> <+|-|*|/> <number>");
+  console.error("Usage: node src/calculator.js <number> <+|-|*|/|%|**> <number>");
+  console.error("   or: node src/calculator.js sqrt <number>");
 }
 
 function parseOperand(value) {
@@ -51,6 +78,24 @@ function parseOperand(value) {
 
 function run(arguments_) {
   const [, , leftArgument, operator, rightArgument] = arguments_;
+
+  if (leftArgument === "sqrt") {
+    const operand = parseOperand(operator);
+    if (operand === null || rightArgument !== undefined) {
+      printUsage();
+      process.exitCode = 1;
+      return;
+    }
+
+    try {
+      console.log(squareRoot(operand));
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   const leftOperand = parseOperand(leftArgument);
   const rightOperand = parseOperand(rightArgument);
 
@@ -75,4 +120,15 @@ if (require.main === module) {
   run(process.argv);
 }
 
-module.exports = { add, subtract, multiply, divide, calculate, parseOperand, run };
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  modulo,
+  power,
+  squareRoot,
+  calculate,
+  parseOperand,
+  run,
+};
